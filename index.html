@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triad — front-end playground</title>
+<meta name="description" content="A live HTML/CSS/JS playground with instant preview and console, built on the web's three native materials.">
+<meta name="theme-color" content="#13151b">
+
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon.svg">
+
+<!-- Fonts (CDN; degrade cleanly to system faces offline) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- Vendored CodeMirror (no CDN; works fully offline) -->
+<link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="./vendor/codemirror/addon/dialog/dialog.css">
+
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app layout-split" id="app" data-active="html">
+
+  <header class="bar">
+    <h1 class="brand">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      Triad <span class="brand-sub">playground</span>
+    </h1>
+
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Editor layout">
+        <button type="button" class="seg-btn" data-layout="split" aria-pressed="true">Split</button>
+        <button type="button" class="seg-btn" data-layout="stack" aria-pressed="false">Stacked</button>
+      </div>
+
+      <label class="switch" title="Re-run automatically as you type">
+        <input type="checkbox" id="autorun" checked>
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Auto-run</span>
+      </label>
+
+      <button type="button" class="btn btn-run" id="run" title="Run (Ctrl/Cmd + Enter)">
+        <span class="i-run" aria-hidden="true"></span>Run
+      </button>
+
+      <span class="divider" aria-hidden="true"></span>
+
+      <button type="button" class="btn" id="save" title="Save the current pen to this browser (Ctrl/Cmd + S)">Save</button>
+      <button type="button" class="btn" id="library" title="Open your saved pens (Ctrl/Cmd + O)">Library</button>
+      <div class="menu-wrap" id="moreWrap">
+        <button type="button" class="btn" id="more" aria-haspopup="true" aria-controls="moreMenu" aria-expanded="false" title="More actions">More <span aria-hidden="true">▾</span></button>
+        <div class="menu" id="moreMenu" hidden>
+          <button type="button" class="menu-item" id="export" title="Download this pen as a standalone .html file">Export pen<span class="mi-hint">.html</span></button>
+          <button type="button" class="menu-item" id="import" title="Load a pen from an exported .html file">Import pen…</button>
+          <button type="button" class="menu-item" id="m-image" title="Embed an image as a data URL">Insert image…</button>
+          <button type="button" class="menu-item" id="m-tidy" title="Reindent the active editor">Tidy code<span class="mi-hint">reindent</span></button>
+          <button type="button" class="menu-item" id="m-palette" title="Search every action">Commands…<span class="mi-hint">Ctrl/⌘ P</span></button>
+          <button type="button" class="menu-item" id="reset" title="Replace the editors with the starter template">Reset to starter</button>
+          <button type="button" class="menu-item" id="install" hidden title="Install Triad as an app">Install app</button>
+        </div>
+      </div>
+      <input type="file" id="file" accept=".html,text/html" hidden>
+      <input type="file" id="imgFile" accept="image/*" hidden>
+
+      <span class="divider" aria-hidden="true"></span>
+
+      <button type="button" class="btn icon-btn" id="themeToggle" aria-pressed="false" aria-label="Switch theme" title="Switch theme">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"></circle>
+          <path d="M12 3.5 A8.5 8.5 0 0 1 12 20.5 Z" fill="currentColor"></path>
+        </svg>
+      </button>
+      <button type="button" class="btn icon-btn" id="help" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"></circle>
+          <path d="M9.3 9.2a2.7 2.7 0 0 1 5.2 1c0 1.8-2.5 1.9-2.5 3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+          <circle cx="12" cy="17.2" r="1.05" fill="currentColor"></circle>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="editors" aria-label="Code editors">
+      <div class="pane pane-html">
+        <div class="pane-head"><span class="dot" aria-hidden="true"></span><span class="pane-name">HTML</span><span class="pane-meta" id="meta-html"></span></div>
+        <div class="editor-host" id="ed-html"></div>
+      </div>
+      <div class="pane pane-css">
+        <div class="pane-head"><span class="dot" aria-hidden="true"></span><span class="pane-name">CSS</span><span class="pane-meta" id="meta-css"></span></div>
+        <div class="editor-host" id="ed-css"></div>
+      </div>
+      <div class="pane pane-js">
+        <div class="pane-head"><span class="dot" aria-hidden="true"></span><span class="pane-name">JS</span><span class="pane-meta" id="meta-js"></span></div>
+        <div class="editor-host" id="ed-js"></div>
+      </div>
+    </section>
+
+    <section class="output" id="output" aria-label="Preview and console">
+      <button type="button" class="splitter" id="splitter" role="separator"
+        aria-orientation="vertical" aria-label="Resize editors and output"
+        aria-valuemin="18" aria-valuemax="82" aria-valuenow="50" tabindex="0"></button>
+
+      <div class="preview">
+        <div class="pane-head preview-head">
+          <span class="pv-chip"><span class="live-dot is-on" id="liveDot" aria-hidden="true"></span><span id="liveText">Live</span></span>
+          <span class="pv-title">Preview</span>
+          <span class="pv-spacer"></span>
+          <span class="widths" role="group" aria-label="Preview width">
+            <button type="button" class="w-btn" data-w="full" aria-pressed="true">Full</button>
+            <button type="button" class="w-btn" data-w="768" aria-pressed="false">768</button>
+            <button type="button" class="w-btn" data-w="375" aria-pressed="false">375</button>
+          </span>
+          <button type="button" class="mini" id="popout" title="Open this preview full-page in a new tab">↗ Full page</button>
+          <span class="pv-meta" id="lastRun">not run yet</span>
+        </div>
+        <div class="preview-stage" id="stage">
+          <iframe id="frame" title="Live preview of your code"
+            sandbox="allow-scripts allow-modals allow-popups allow-forms allow-downloads"></iframe>
+        </div>
+      </div>
+
+      <div class="console">
+        <div class="pane-head console-head">
+          <span class="pane-name">Console</span>
+          <span class="con-count" id="conCount">0</span>
+          <span class="pv-spacer"></span>
+          <span class="con-filter" role="group" aria-label="Filter console">
+            <button type="button" class="cf-btn" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" class="cf-btn" data-filter="logs" aria-pressed="false">Logs</button>
+            <button type="button" class="cf-btn" data-filter="warn" aria-pressed="false">Warnings</button>
+            <button type="button" class="cf-btn" data-filter="error" aria-pressed="false">Errors</button>
+          </span>
+          <button type="button" class="mini" id="clearCon" title="Clear console (Ctrl/Cmd + K)">Clear</button>
+        </div>
+        <div class="con-feed" id="conFeed" role="log" aria-live="polite" aria-label="Console output" data-filter="all"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="status">
+    <span class="st-left">
+      <span class="st-live" id="stLive" aria-hidden="true"></span>
+      <span id="stState">Live</span>
+      <span class="st-sep">·</span>
+      <span id="stRun">not run yet</span>
+      <span class="st-sep">·</span>
+      <span class="st-saved" id="stSaved" style="opacity:0;transition:opacity .2s"></span>
+    </span>
+    <span class="st-right">
+      <button type="button" class="mini" id="fontDown" title="Smaller editor text" aria-label="Smaller editor text">A−</button>
+      <button type="button" class="mini" id="fontUp" title="Larger editor text" aria-label="Larger editor text">A+</button>
+      <span id="stPos">HTML · Ln 1, Col 1</span>
+    </span>
+  </footer>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<!-- Confirm / prompt modal -->
+<div class="modal-scrim" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" id="modalBox">
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <p class="modal-body" id="modalBody"></p>
+    <input class="modal-input" id="modalInput" type="text" hidden>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
+      <button type="button" class="btn btn-run" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Library modal -->
+<div class="modal-scrim" id="libModal" hidden>
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="libTitle">
+    <h2 class="modal-title" id="libTitle">Library</h2>
+    <p class="modal-body">Your saved pens, stored in this browser. Load, rename, duplicate, or delete.</p>
+    <input class="lib-search" id="libSearch" type="text" placeholder="Search pens…" aria-label="Search pens">
+    <ul class="lib-list" id="libList"></ul>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="libClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shortcuts overlay -->
+<div class="modal-scrim" id="kbdModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="kbdTitle">
+    <h2 class="modal-title" id="kbdTitle">Keyboard shortcuts</h2>
+    <dl class="kbd-list">
+      <dt>Run preview</dt><dd><kbd>Ctrl/⌘</kbd><kbd>Enter</kbd></dd>
+      <dt>Save pen</dt><dd><kbd>Ctrl/⌘</kbd><kbd>S</kbd></dd>
+      <dt>Open library</dt><dd><kbd>Ctrl/⌘</kbd><kbd>O</kbd></dd>
+      <dt>Command palette</dt><dd><kbd>Ctrl/⌘</kbd><kbd>P</kbd></dd>
+      <dt>Clear console</dt><dd><kbd>Ctrl/⌘</kbd><kbd>K</kbd></dd>
+      <dt>Find in editor</dt><dd><kbd>Ctrl/⌘</kbd><kbd>F</kbd></dd>
+      <dt>Find next / previous</dt><dd><kbd>Ctrl/⌘</kbd><kbd>G</kbd></dd>
+      <dt>This help</dt><dd><kbd>?</kbd></dd>
+    </dl>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-run" id="kbdClose">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Command palette -->
+<div class="modal-scrim" id="cmdModal" hidden>
+  <div class="cmd" role="dialog" aria-modal="true" aria-label="Command palette">
+    <input class="cmd-input" id="cmdInput" type="text" placeholder="Type a command…" aria-label="Search commands" role="combobox" aria-controls="cmdList" aria-expanded="true" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+    <ul class="cmd-list" id="cmdList" role="listbox" aria-label="Commands"></ul>
+  </div>
+</div>
+
+<!-- Vendored CodeMirror: core, then modes, then addons (order matters). The app scripts load last. -->
+<script src="./vendor/codemirror/lib/codemirror.js"></script>
+<script src="./vendor/codemirror/mode/xml/xml.js"></script>
+<script src="./vendor/codemirror/mode/javascript/javascript.js"></script>
+<script src="./vendor/codemirror/mode/css/css.js"></script>
+<script src="./vendor/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="./vendor/codemirror/addon/edit/closebrackets.js"></script>
+<script src="./vendor/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="./vendor/codemirror/addon/edit/closetag.js"></script>
+<script src="./vendor/codemirror/addon/selection/active-line.js"></script>
+<script src="./vendor/codemirror/addon/dialog/dialog.js"></script>
+<script src="./vendor/codemirror/addon/search/searchcursor.js"></script>
+<script src="./vendor/codemirror/addon/search/search.js"></script>
+
+<!-- App scripts (classic, in order) — so the app runs by simply opening this file. -->
+<script src="./src/starter.js"></script>
+<script src="./src/storage.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
